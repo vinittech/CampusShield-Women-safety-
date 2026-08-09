@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusShield - Login Portal (Safer Campus. Stronger Community.)</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Custom Glassmorphism Styles -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-[#0B132B] text-[#FFFFFF] min-h-screen flex flex-col justify-between relative overflow-x-hidden">
+
+  <!-- Ambient Cyan & Electric Blue Background Glow -->
+  <div class="fixed -top-40 -left-40 w-[600px] h-[600px] bg-[#06B6D4]/10 rounded-full blur-[140px] pointer-events-none"></div>
+  <div class="fixed -bottom-40 -right-40 w-[600px] h-[600px] bg-[#2563EB]/10 rounded-full blur-[140px] pointer-events-none"></div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastNotification" class="toast-notification hidden">
+    <i data-lucide="info" id="toastIcon" class="w-5 h-5 text-[#06B6D4]"></i>
+    <span id="toastMsg">Notification message</span>
+  </div>
+
+  <!-- Mobile Top Branding Bar -->
+  <header class="lg:hidden p-4 border-b border-[#06B6D4]/20 glass-panel flex items-center justify-between backdrop-blur-xl z-20">
+    <div class="flex items-center gap-2.5">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#2563EB] to-[#06B6D4] flex items-center justify-center shadow-lg shadow-cyan-500/20">
+        <i data-lucide="shield-check" class="w-5 h-5 text-white"></i>
+      </div>
+      <div>
+        <span class="font-extrabold text-lg tracking-tight bg-gradient-to-r from-white via-cyan-300 to-blue-400 bg-clip-text text-transparent">CampusShield</span>
+        <div class="text-[9px] text-[#06B6D4] font-medium">Safer Campus. Stronger Community.</div>
+      </div>
+    </div>
+
+    <!-- Quick Emergency SOS Button for Mobile -->
+    <button onclick="triggerDirectSos()" class="btn-danger text-xs px-3 py-1.5 flex items-center gap-1 font-bold">
+      <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i> SOS
+    </button>
+  </header>
+
+  <!-- SPLIT-SCREEN MAIN CONTAINER -->
+  <main class="flex-grow max-w-7xl w-full mx-auto grid lg:grid-cols-2 gap-8 lg:gap-12 items-center p-4 sm:p-6 lg:p-12 relative z-10">
+
+    <!-- LEFT SIDE — BRANDING & ILLUSTRATION (DESKTOP & TABLET) -->
+    <div class="hidden lg:flex flex-col justify-center space-y-8 pr-4">
+      
+      <!-- Logo & Brand Title -->
+      <div class="inline-flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#2563EB] to-[#06B6D4] flex items-center justify-center shadow-xl shadow-cyan-500/30">
+          <i data-lucide="shield-check" class="w-7 h-7 text-white"></i>
+        </div>
+        <div>
+          <span class="font-extrabold text-3xl tracking-tight bg-gradient-to-r from-white via-cyan-200 to-blue-400 bg-clip-text text-transparent">CampusShield</span>
+          <div class="text-xs text-[#06B6D4] font-semibold tracking-wide">Safer Campus. Stronger Community.</div>
+        </div>
+      </div>
+
+      <!-- Welcome Heading & Supporting Text -->
+      <div class="space-y-3">
+        <h1 class="text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight text-white">
+          Welcome to <br>
+          <span class="bg-gradient-to-r from-[#06B6D4] to-[#2563EB] bg-clip-text text-transparent">CampusShield</span>
+        </h1>
+
+        <p class="text-slate-300 text-sm lg:text-base leading-relaxed max-w-md">
+          A safer campus starts with a connected community. Access real-time alerts, file anonymous reports, and navigate illuminated safe routes across your campus.
+        </p>
+      </div>
+
+      <!-- Abstract Safety Mesh Visual Art -->
+      <div class="glass-panel p-6 rounded-3xl border border-[#06B6D4]/30 space-y-4 bg-[#111D3A]/60 max-w-md">
+        <div class="flex items-center justify-between border-b border-[#06B6D4]/20 pb-3">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-[#10B981] animate-ping"></span>
+            <span class="text-xs font-bold text-[#10B981] uppercase tracking-wider">Campus Protection Grid</span>
+          </div>
+          <span class="text-[11px] text-slate-400">Status: Active</span>
+        </div>
+
+        <div class="w-full h-44 rounded-2xl bg-gradient-to-tr from-[#0B132B] via-[#111D3A] to-[#0B132B] border border-[#06B6D4]/20 flex items-center justify-center relative overflow-hidden">
+          <svg class="w-32 h-32 text-[#06B6D4] opacity-85 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="M9 12l2 2 4-4"/>
+          </svg>
+        </div>
+
+        <!-- Visual Feature Indicators -->
+        <div class="grid grid-cols-3 gap-2 text-[11px] font-semibold text-slate-200">
+          <div class="p-2.5 rounded-xl bg-white/5 border border-white/10 flex items-center gap-1.5">
+            <i data-lucide="check-circle-2" class="w-4 h-4 text-[#10B981] shrink-0"></i>
+            <span>Secure Access</span>
+          </div>
+          <div class="p-2.5 rounded-xl bg-white/5 border border-white/10 flex items-center gap-1.5">
+            <i data-lucide="lock" class="w-4 h-4 text-[#06B6D4] shrink-0"></i>
+            <span>Privacy Protected</span>
+          </div>
+          <div class="p-2.5 rounded-xl bg-white/5 border border-white/10 flex items-center gap-1.5">
+            <i data-lucide="wifi" class="w-4 h-4 text-[#2563EB] shrink-0"></i>
+            <span>Campus Connected</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT SIDE — LOGIN CARD -->
+    <div class="w-full max-w-md mx-auto">
+      <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-[#06B6D4]/30 bg-[#111D3A] shadow-2xl space-y-6 backdrop-blur-2xl relative">
+        
+        <!-- Logo & Tagline Header inside Card -->
+        <div class="text-center space-y-2">
+          <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#2563EB] to-[#06B6D4] flex items-center justify-center mx-auto shadow-lg shadow-cyan-500/30">
+            <i data-lucide="shield-check" class="w-6 h-6 text-white"></i>
+          </div>
+          <div>
+            <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">Welcome Back</h2>
+            <div class="text-xs text-[#06B6D4] font-medium">Safer Campus. Stronger Community.</div>
+          </div>
+        </div>
+
+        <!-- Role Selector Tabs (Student, Admin, Security) -->
+        <div class="space-y-2">
+          <div class="grid grid-cols-3 gap-1 bg-[#0B132B] p-1 rounded-2xl border border-[#06B6D4]/20 text-xs font-bold text-center">
+            <button onclick="selectRoleTab('student')" id="tab-student" class="role-tab active py-2 rounded-xl transition flex items-center justify-center gap-1 bg-[#06B6D4]/20 text-[#06B6D4] border border-[#06B6D4]/40">
+              🎓 Student
+            </button>
+            <button onclick="selectRoleTab('admin')" id="tab-admin" class="role-tab py-2 rounded-xl transition flex items-center justify-center gap-1 text-slate-400 hover:text-white">
+              🛡️ Admin
+            </button>
+            <button onclick="selectRoleTab('security')" id="tab-security" class="role-tab py-2 rounded-xl transition flex items-center justify-center gap-1 text-slate-400 hover:text-white">
+              🚨 Security
+            </button>
+          </div>
+
+          <div id="roleHintBox" class="p-2.5 rounded-xl bg-[#0B132B] border border-[#06B6D4]/20 text-[11px] text-slate-300 flex items-center gap-2">
+            <span id="roleHintIcon">🎓</span>
+            <span id="roleHintText">Report incidents, view alerts and access campus safety tools.</span>
+          </div>
+        </div>
+
+        <!-- Error Alert Banner -->
+        <div id="loginErrorMsg" class="hidden p-3.5 rounded-xl bg-red-500/15 border border-red-500/40 text-red-400 text-xs font-medium flex items-center gap-2">
+          <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
+          <span>Invalid username or password. Please try again.</span>
+        </div>
+
+        <!-- Login Form -->
+        <form onsubmit="executeLogin(event)" class="space-y-4">
+          
+          <!-- Username / Student ID Field -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase mb-1" id="usernameLabel">Username / Student ID</label>
+            <div class="relative">
+              <input type="text" id="loginUsername" class="w-full glass-input text-xs pl-10" placeholder="Enter your username or Student ID" required>
+              <i data-lucide="user" class="w-4 h-4 text-slate-400 absolute left-3 top-3"></i>
+            </div>
+          </div>
+
+          <!-- Password Field with Lock & Eye Toggle Icons -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Password</label>
+            <div class="relative">
+              <input type="password" id="loginPassword" class="w-full glass-input text-xs pl-10 pr-10" placeholder="Enter your password" required>
+              <i data-lucide="lock" class="w-4 h-4 text-slate-400 absolute left-3 top-3"></i>
+              <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-3 text-slate-400 hover:text-white">
+                <i data-lucide="eye" id="pwdEyeIcon" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Remember Me & Forgot Password -->
+          <div class="flex items-center justify-between text-xs text-slate-300">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="rememberMe" checked class="accent-[#06B6D4] rounded">
+              <span>Remember me</span>
+            </label>
+            <a href="#" onclick="showForgotPwdToast(); return false;" class="text-[#06B6D4] hover:underline">Forgot Password?</a>
+          </div>
+
+          <!-- Login Button with Loading Spinner State -->
+          <button type="submit" id="submitBtn" class="btn-primary w-full py-3.5 rounded-2xl text-sm font-bold shadow-xl shadow-cyan-500/20 flex items-center justify-center gap-2">
+            <span id="submitBtnSpinner" class="hidden w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+            <i data-lucide="log-in" id="submitBtnIcon" class="w-4 h-4"></i>
+            <span id="loginSubmitBtnText">Login</span>
+          </button>
+
+          <div class="text-center text-[11px] text-slate-400 font-medium flex items-center justify-center gap-1 pt-1">
+            <i data-lucide="shield-check" class="w-3.5 h-3.5 text-[#06B6D4]"></i>
+            <span>🔒 Secure encrypted login</span>
+          </div>
+        </form>
+
+        <!-- Emergency SOS Access Button -->
+        <div class="p-3.5 rounded-2xl bg-red-500/10 border border-red-500/30 text-center space-y-2">
+          <div class="text-[11px] font-bold text-red-400">Need immediate help?</div>
+          <button onclick="triggerDirectSos()" class="btn-danger w-full py-2.5 text-xs font-extrabold uppercase justify-center shadow-lg shadow-red-500/30">
+            🚨 Emergency SOS
+          </button>
+        </div>
+
+        <!-- Hackathon Demo Access Section -->
+        <div class="p-3.5 rounded-2xl bg-[#0B132B] border border-[#06B6D4]/20 space-y-2">
+          <div class="text-[11px] font-bold text-[#06B6D4] flex items-center justify-between">
+            <span>⚡ Demo Credentials:</span>
+            <span class="text-[#10B981] text-[10px] italic">Auto-Fill 1-Click</span>
+          </div>
+          <div class="grid grid-cols-3 gap-1.5 text-center">
+            <button onclick="fillDemoCredentials('student')" class="py-1.5 px-2 rounded-xl bg-white/5 hover:bg-white/10 text-[10px] font-semibold text-slate-200 border border-white/10">🎓 Student</button>
+            <button onclick="fillDemoCredentials('admin')" class="py-1.5 px-2 rounded-xl bg-white/5 hover:bg-white/10 text-[10px] font-semibold text-slate-200 border border-white/10">🛡️ Admin</button>
+            <button onclick="fillDemoCredentials('security')" class="py-1.5 px-2 rounded-xl bg-white/5 hover:bg-white/10 text-[10px] font-semibold text-slate-200 border border-white/10">🚨 Security</button>
+          </div>
+        </div>
+
+        <!-- Don't have an account? Create Account -->
+        <div class="pt-2 border-t border-[#06B6D4]/20 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-300">
+          <span>Don't have an account?</span>
+          <button onclick="openRegisterStudentModal()" class="text-[#06B6D4] font-bold hover:underline">Create Account</button>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- STUDENT REGISTRATION MODAL -->
+  <div id="registerStudentModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 hidden">
+    <div class="glass-panel max-w-md w-full p-6 sm:p-8 rounded-3xl space-y-5 border border-[#06B6D4]/30 bg-[#111D3A] relative">
+      <button onclick="closeRegisterStudentModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl font-bold">&times;</button>
+      
+      <div class="space-y-1 text-center">
+        <div class="w-12 h-12 rounded-2xl bg-[#06B6D4]/20 border border-[#06B6D4]/40 text-[#06B6D4] flex items-center justify-center mx-auto text-xl font-bold mb-2">
+          🎓
+        </div>
+        <h3 class="text-2xl font-extrabold text-white">Create Student Account</h3>
+        <p class="text-xs text-slate-400">Student self-registration. (Admin and Security accounts are issued by authorized wardens).</p>
+      </div>
+
+      <form onsubmit="handleRegisterSubmit(event)" class="space-y-3 pt-2">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Full Name</label>
+          <input type="text" id="regName" class="w-full glass-input text-xs" placeholder="Ananya Roy" required>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">College Email (@university.edu)</label>
+          <input type="email" id="regEmail" class="w-full glass-input text-xs" placeholder="ananya@university.edu" required>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Student ID / Roll Number</label>
+          <input type="text" id="regCollegeId" class="w-full glass-input text-xs" placeholder="STU-2026-9901" required>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Password</label>
+          <input type="password" id="regPassword" class="w-full glass-input text-xs" placeholder="••••••••" required>
+        </div>
+
+        <button type="submit" class="btn-primary w-full py-3 rounded-xl text-xs font-bold justify-center">
+          Complete Registration
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer Bar -->
+  <footer class="p-4 text-center text-xs text-slate-400 glass-panel border-t border-[#06B6D4]/20 relative z-10">
+    CampusShield &copy; 2026 • Deep Navy & Electric Blue Campus Safety System
+  </footer>
+
+  <script>
+    let activeRole = 'student';
+    let isPasswordShown = false;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (window.lucide) lucide.createIcons();
+      selectRoleTab('student');
+    });
+
+    function showToast(message, type = 'info') {
+      const toast = document.getElementById('toastNotification');
+      const toastMsg = document.getElementById('toastMsg');
+      if (toast && toastMsg) {
+        toastMsg.textContent = message;
+        toast.classList.remove('hidden');
+        setTimeout(() => toast.classList.add('hidden'), 3500);
+      }
+    }
+
+    function showForgotPwdToast() {
+      showToast("Password reset link requested. Demo password is student123, admin123, or security123.");
+    }
+
+    function selectRoleTab(role) {
+      activeRole = role;
+      document.querySelectorAll('.role-tab').forEach(b => {
+        b.classList.remove('bg-[#06B6D4]/20', 'text-[#06B6D4]', 'border', 'border-[#06B6D4]/40');
+        b.classList.add('text-slate-400');
+      });
+
+      const activeBtn = document.getElementById(`tab-${role}`);
+      if (activeBtn) {
+        activeBtn.classList.add('bg-[#06B6D4]/20', 'text-[#06B6D4]', 'border', 'border-[#06B6D4]/40');
+        activeBtn.classList.remove('text-slate-400');
+      }
+
+      const userLabel = document.getElementById('usernameLabel');
+      const userField = document.getElementById('loginUsername');
+      const hintIcon = document.getElementById('roleHintIcon');
+      const hintText = document.getElementById('roleHintText');
+
+      if (role === 'admin') {
+        if (userLabel) userLabel.textContent = 'Admin Username / Admin ID';
+        if (userField) userField.placeholder = 'Enter Admin ID or email';
+        if (hintIcon) hintIcon.textContent = '🛡️';
+        if (hintText) hintText.textContent = 'Manage reports, monitor campus safety and manage users.';
+        fillDemoCredentials('admin');
+      } else if (role === 'security') {
+        if (userLabel) userLabel.textContent = 'Security Username / Badge Code';
+        if (userField) userField.placeholder = 'Enter Security Badge Code';
+        if (hintIcon) hintIcon.textContent = '🚨';
+        if (hintText) hintText.textContent = 'Monitor incidents, respond to alerts and manage emergency situations.';
+        fillDemoCredentials('security');
+      } else {
+        if (userLabel) userLabel.textContent = 'Username / Student ID';
+        if (userField) userField.placeholder = 'Enter your username or Student ID';
+        if (hintIcon) hintIcon.textContent = '🎓';
+        if (hintText) hintText.textContent = 'Report incidents, view alerts and access campus safety tools.';
+        fillDemoCredentials('student');
+      }
+    }
+
+    function fillDemoCredentials(role) {
+      const email = document.getElementById('loginUsername');
+      const pass = document.getElementById('loginPassword');
+
+      if (role === 'admin') {
+        if (email) email.value = 'admin@university.edu';
+        if (pass) pass.value = 'admin123';
+      } else if (role === 'security') {
+        if (email) email.value = 'security@university.edu';
+        if (pass) pass.value = 'security123';
+      } else {
+        if (email) email.value = 'student@university.edu';
+        if (pass) pass.value = 'student123';
+      }
+    }
+
+    function togglePasswordVisibility() {
+      isPasswordShown = !isPasswordShown;
+      const pwdInput = document.getElementById('loginPassword');
+      const pwdEyeIcon = document.getElementById('pwdEyeIcon');
+
+      if (pwdInput) {
+        pwdInput.type = isPasswordShown ? 'text' : 'password';
+      }
+      if (pwdEyeIcon && window.lucide) {
+        pwdEyeIcon.setAttribute('data-lucide', isPasswordShown ? 'eye-off' : 'eye');
+        lucide.createIcons();
+      }
+    }
+
+    function triggerDirectSos() {
+      showToast("🚨 Emergency SOS Triggered! Broadcasting live GPS location to Security Control Room (1800-11-2233).");
+    }
+
+    function openRegisterStudentModal() {
+      document.getElementById('registerStudentModal').classList.remove('hidden');
+    }
+
+    function closeRegisterStudentModal() {
+      document.getElementById('registerStudentModal').classList.add('hidden');
+    }
+
+    function handleRegisterSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('regName').value;
+      const email = document.getElementById('regEmail').value;
+      const collegeId = document.getElementById('regCollegeId').value;
+      
+      const newUser = { email, name, role: 'student', collegeId, trustScore: 90 };
+      sessionStorage.setItem('cs_user', JSON.stringify(newUser));
+
+      showToast(`✅ Student Account Created for ${name}! Redirecting to Student Dashboard...`);
+      closeRegisterStudentModal();
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 1000);
+    }
+
+    async function executeLogin(e) {
+      e.preventDefault();
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+      const errBox = document.getElementById('loginErrorMsg');
+      const submitBtn = document.getElementById('submitBtn');
+      const spinner = document.getElementById('submitBtnSpinner');
+      const btnIcon = document.getElementById('submitBtnIcon');
+
+      // Validation
+      if (!username || !password) {
+        if (errBox) errBox.classList.remove('hidden');
+        return;
+      }
+
+      // Trigger Loading State
+      if (spinner) spinner.classList.remove('hidden');
+      if (btnIcon) btnIcon.classList.add('hidden');
+      if (submitBtn) submitBtn.disabled = true;
+      if (errBox) errBox.classList.add('hidden');
+
+      setTimeout(() => {
+        if (spinner) spinner.classList.add('hidden');
+        if (btnIcon) btnIcon.classList.remove('hidden');
+        if (submitBtn) submitBtn.disabled = false;
+
+        // Credentials Check (Password validation)
+        if (password.length < 4) {
+          if (errBox) {
+            errBox.classList.remove('hidden');
+            errBox.querySelector('span').textContent = 'Invalid username or password. Please try again.';
+          }
+          return;
+        }
+
+        let user = null;
+        if (username.includes('admin') || activeRole === 'admin') {
+          user = { email: username, name: 'Dr. A. K. Verma (Chief Warden)', role: 'admin', collegeId: 'ADM-2026-0001', trustScore: 100 };
+        } else if (username.includes('security') || activeRole === 'security') {
+          user = { email: username, name: 'Inspector R. Singh (Head Security)', role: 'security', collegeId: 'SEC-2026-0042', trustScore: 100 };
+        } else {
+          user = { email: username, name: 'Priya Sharma', role: 'student', collegeId: 'STU-2026-8891', trustScore: 95 };
+        }
+
+        sessionStorage.setItem('cs_user', JSON.stringify(user));
+        showToast(`✅ Welcome back, ${user.name}! Redirecting to ${user.role.toUpperCase()} Dashboard...`);
+
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 800);
+      }, 800);
+    }
+  </script>
+</body>
+</html>

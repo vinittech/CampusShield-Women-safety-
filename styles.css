@@ -1,0 +1,211 @@
+/* 
+ * CampusShield Design System — Deep Navy & Electric Blue Palette
+ * Colors: #0B132B (Deep Navy), #2563EB (Electric Blue), #06B6D4 (Cyan), #FFFFFF (White), #F8FAFC (Light Text)
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --font-heading: 'Plus Jakarta Sans', sans-serif;
+  --font-body: 'Inter', sans-serif;
+
+  /* Theme Palette */
+  --bg-navy: #0B132B;
+  --bg-card-dark: #111D3A;
+  --bg-glass: rgba(17, 29, 58, 0.85);
+  --border-navy: rgba(6, 182, 212, 0.2);
+
+  --color-electric: #2563EB;
+  --color-electric-hover: #1D4ED8;
+  --color-cyan: #06B6D4;
+  --color-cyan-hover: #0891B2;
+  --color-safe: #10B981;
+  --color-warning: #F59E0B;
+  --color-coral: #EF4444;
+  
+  --text-white: #FFFFFF;
+  --text-slate: #F8FAFC;
+  --text-muted: #94A3B8;
+
+  /* Shadows & Glows */
+  --shadow-glass: 0 12px 36px 0 rgba(0, 0, 0, 0.5);
+  --shadow-glow-cyan: 0 0 25px rgba(6, 182, 212, 0.35);
+  --shadow-glow-blue: 0 0 30px rgba(37, 99, 235, 0.4);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-navy);
+  color: var(--text-slate);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
+/* Glassmorphism Containers */
+.glass-panel {
+  background: var(--bg-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-navy);
+  border-radius: 20px;
+  box-shadow: var(--shadow-glass);
+}
+
+.glass-card {
+  background: var(--bg-card-dark);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border-navy);
+  border-radius: 18px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--color-cyan);
+  box-shadow: var(--shadow-glow-cyan);
+}
+
+.glass-input {
+  background: rgba(11, 19, 43, 0.8);
+  border: 1px solid var(--border-navy);
+  color: var(--text-white);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  transition: all 0.2s ease;
+}
+
+.glass-input:focus {
+  outline: none;
+  border-color: var(--color-cyan);
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.25);
+}
+
+/* Primary Button Styling */
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-electric), var(--color-cyan));
+  color: #FFFFFF;
+  font-weight: 700;
+  border-radius: 12px;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--color-electric-hover), var(--color-cyan-hover));
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glow-blue);
+}
+
+.btn-secondary {
+  background: rgba(37, 99, 235, 0.15);
+  color: var(--text-white);
+  font-weight: 600;
+  border-radius: 12px;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid var(--border-navy);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(37, 99, 235, 0.3);
+  border-color: var(--color-cyan);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #EF4444, #DC2626);
+  color: #FFFFFF;
+  font-weight: 700;
+  border-radius: 12px;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
+}
+
+.btn-danger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 25px rgba(239, 68, 68, 0.6);
+}
+
+/* Toast Notifications */
+.toast-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+  padding: 1rem 1.5rem;
+  border-radius: 14px;
+  background: var(--bg-card-dark);
+  border: 1px solid var(--border-navy);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  animation: slideInToast 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideInToast {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* Leaflet Map Dark Styling */
+#campusMap, #reportMapSelect {
+  width: 100%;
+  height: 480px;
+  border-radius: 16px;
+  z-index: 10;
+}
+
+.leaflet-popup-content-wrapper {
+  background: var(--bg-card-dark) !important;
+  color: var(--text-white) !important;
+  border-radius: 14px !important;
+  border: 1px solid var(--border-navy);
+}
+
+.leaflet-popup-tip {
+  background: var(--bg-card-dark) !important;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-navy);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(6, 182, 212, 0.3);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-cyan);
+}

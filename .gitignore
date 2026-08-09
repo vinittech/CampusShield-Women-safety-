@@ -1,0 +1,13 @@
+# Compiled Executables & Binaries
+*.exe
+*.o
+*.obj
+
+# Temp files
+*.log
+*.tmp
+.DS_Store
+
+# IDE & Editor Configs
+.vscode/
+.idea/

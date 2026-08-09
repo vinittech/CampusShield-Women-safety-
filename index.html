@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>CampusShield - Pan-India Campus Safety Network</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- html2pdf.js for PDF Exporting -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <!-- Custom Glassmorphism & Aurora Shield Styles -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-[#080B0A] text-[#F1F5F3] flex flex-col min-h-screen relative overflow-x-hidden">
+
+  <!-- Ambient Aurora Mint Gradient Background Glow -->
+  <div class="fixed -top-40 -left-40 w-[500px] h-[500px] bg-[#5EEAD4]/10 rounded-full blur-[140px] pointer-events-none"></div>
+  <div class="fixed -bottom-40 -right-40 w-[500px] h-[500px] bg-[#2DD4BF]/10 rounded-full blur-[140px] pointer-events-none"></div>
+
+  <!-- STICKY NAVIGATION BAR -->
+  <header class="sticky top-0 z-50 glass-panel border-b border-[#1D302A] px-4 lg:px-8 py-3.5 backdrop-blur-xl">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      
+      <!-- Brand Logo -->
+      <a href="#" onclick="navigateTo('landing'); return false;" class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#5EEAD4] to-[#2DD4BF] flex items-center justify-center shadow-lg shadow-teal-500/20">
+          <i data-lucide="shield-check" class="w-6 h-6 text-[#080B0A]"></i>
+        </div>
+        <div>
+          <span class="font-extrabold text-xl tracking-tight bg-gradient-to-r from-[#5EEAD4] via-[#2DD4BF] to-[#A3E635] bg-clip-text text-transparent">CampusShield</span>
+          <span class="hidden sm:inline text-[10px] text-[#A3E635] font-mono ml-2">🇮🇳 PAN-INDIA</span>
+        </div>
+      </a>
+
+      <!-- Clean Navigation Links -->
+      <nav class="hidden lg:flex items-center gap-1 bg-[#0D1713] p-1 rounded-2xl border border-[#1D302A]">
+        <button onclick="navigateTo('landing')" id="nav-landing" class="nav-link active px-3.5 py-1.5 text-xs font-semibold rounded-xl transition flex items-center gap-1.5 hover:text-[#5EEAD4]">
+          <i data-lucide="home" class="w-4 h-4"></i> Home
+        </button>
+        <button onclick="navigateTo('studentDashboard')" id="nav-studentDashboard" class="nav-link role-student-only px-3.5 py-1.5 text-xs font-semibold rounded-xl transition flex items-center gap-1.5 hover:text-[#5EEAD4]">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard
+        </button>
+        <button onclick="navigateTo('reportIncident')" id="nav-reportIncident" class="nav-link role-student-only px-3.5 py-1.5 text-xs font-semibold rounded-xl transition flex items-center gap-1.5 hover:text-[#5EEAD4]">
+          <i data-lucide="file-plus" class="w-4 h-4"></i> Report Incident
+        </button>
+        <button onclick="navigateTo('campusMap')" id="nav-campusMap" class="nav-link px-3.5 py-1.5 text-xs font-semibold rounded-xl transition flex items-center gap-1.5 hover:text-[#5EEAD4]">
+          <i data-lucide="map" class="w-4 h-4"></i> Safety Map
+        </button>
+        <button onclick="navigateTo('alerts')" id="nav-alerts" class="nav-link px-3.5 py-1.5 text-xs font-semibold rounded-xl transition flex items-center gap-1.5 hover:text-[#5EEAD4]">
+          <i data-lucide="bell" class="w-4 h-4"></i> Alerts
+        </button>
+        <button onclick="navigateTo('community')" id="nav-community" class="nav-link px-3.5 py-1.5 text-xs font-semibold rounded-xl transition flex items-center gap-1.5 hover:text-[#5EEAD4]">
+          <i data-lucide="users" class="w-4 h-4"></i> Community
+        </button>
+
+        <!-- ADMIN ONLY TAB -->
+        <button onclick="navigateTo('adminDashboard')" id="nav-adminDashboard" class="nav-link role-admin-only hidden px-3.5 py-1.5 text-xs font-semibold rounded-xl transition flex items-center gap-1.5 hover:text-[#5EEAD4] text-[#A3E635]">
+          <i data-lucide="shield-alert" class="w-4 h-4 text-[#A3E635]"></i> Admin Console
+        </button>
+
+        <!-- SECURITY ONLY TAB -->
+        <button onclick="navigateTo('securityDashboard')" id="nav-securityDashboard" class="nav-link role-security-only hidden px-3.5 py-1.5 text-xs font-semibold rounded-xl transition flex items-center gap-1.5 hover:text-[#5EEAD4] text-[#2DD4BF]">
+          <i data-lucide="radio" class="w-4 h-4 text-[#2DD4BF]"></i> Security Console
+        </button>
+      </nav>
+
+      <!-- Right Action Controls -->
+      <div class="flex items-center gap-3">
+        <div id="userAuthBadge" class="flex items-center gap-2">
+          <div id="loggedInUserBox" class="flex items-center gap-2">
+            <button onclick="navigateTo('profile')" class="p-1.5 px-3 rounded-xl bg-[#5EEAD4]/10 border border-[#5EEAD4]/30 text-[#5EEAD4] text-xs font-bold flex items-center gap-1.5 hover:bg-[#5EEAD4]/20">
+              <i data-lucide="user-check" class="w-4 h-4 text-[#A3E635]"></i>
+              <span id="headerUserName">Priya Sharma</span>
+              <span id="headerRoleBadge" class="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-[#5EEAD4]/20 text-[#5EEAD4]">STUDENT</span>
+            </button>
+            <button onclick="logoutUser()" title="Logout" class="p-1.5 rounded-xl bg-[#FB5B5B]/10 text-[#FB5B5B] border border-[#FB5B5B]/30 hover:bg-[#FB5B5B]/20">
+              <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+            </button>
+          </div>
+        </div>
+
+        <button onclick="openSosModal()" class="btn-danger text-xs px-4 py-2 rounded-xl flex items-center gap-1.5 font-extrabold uppercase shadow-lg shadow-coral-500/30">
+          <i data-lucide="alert-triangle" class="w-4 h-4"></i> SOS
+        </button>
+
+        <button onclick="toggleMobileDrawer()" class="lg:hidden p-2 rounded-xl bg-[#0D1713] border border-[#1D302A] text-white">
+          <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MOBILE NAVIGATION DRAWER -->
+  <div id="mobileDrawer" class="lg:hidden fixed inset-0 z-40 bg-black/85 backdrop-blur-md hidden pt-20 px-6">
+    <div class="glass-panel p-6 space-y-4 border border-[#1D302A] bg-[#0D1713]">
+      <div class="flex items-center justify-between border-b border-[#1D302A] pb-3">
+        <span class="font-extrabold text-lg text-[#5EEAD4]">Navigation Menu</span>
+        <button onclick="toggleMobileDrawer()" class="text-[#94A39D] hover:text-white">&times;</button>
+      </div>
+      <div class="grid grid-cols-2 gap-3 text-xs">
+        <button onclick="mobileNavTo('landing')" class="p-3 glass-card text-left font-bold">🏠 Home</button>
+        <button onclick="mobileNavTo('studentDashboard')" class="p-3 glass-card role-student-only text-left font-bold">📊 Student Dashboard</button>
+        <button onclick="mobileNavTo('reportIncident')" class="p-3 glass-card role-student-only text-left font-bold">🚨 Report Incident</button>
+        <button onclick="mobileNavTo('adminDashboard')" class="p-3 glass-card role-admin-only hidden text-left font-bold text-[#A3E635]">🛡️ Admin Console</button>
+        <button onclick="mobileNavTo('securityDashboard')" class="p-3 glass-card role-security-only hidden text-left font-bold text-[#2DD4BF]">🚨 Security Console</button>
+        <button onclick="mobileNavTo('campusMap')" class="p-3 glass-card text-left font-bold">🗺️ Safety Map</button>
+        <button onclick="mobileNavTo('alerts')" class="p-3 glass-card text-left font-bold">⚠️ View Alerts</button>
+        <button onclick="mobileNavTo('community')" class="p-3 glass-card text-left font-bold">👥 Community</button>
+        <button onclick="logoutUser()" class="p-3 glass-card text-left font-bold text-[#FB5B5B]">🚪 Logout Session</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6 lg:p-8">
+
+    <!-- LANDING PAGE VIEW -->
+    <div id="view-landing" class="view-section space-y-12 md:space-y-16">
+      
+      <!-- Hero Section -->
+      <div class="grid lg:grid-cols-2 gap-8 items-center pt-4 md:pt-8">
+        <div class="space-y-6">
+          <div class="space-y-2">
+            <span class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#5EEAD4]/10 border border-[#5EEAD4]/30 text-[#5EEAD4] text-xs font-semibold">
+              <span class="w-2 h-2 rounded-full bg-[#A3E635] animate-ping"></span> 🇮🇳 Pan-India Campus Network
+            </span>
+
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight text-[#F1F5F3]">
+              Safer Campuses. <br>
+              <span class="text-[#5EEAD4]">Stronger Communities.</span>
+            </h1>
+          </div>
+
+          <p class="text-[#94A39D] text-sm md:text-base leading-relaxed max-w-xl">
+            A real-time safety monitoring & emergency response network for Central, State, and Private Universities across India.
+          </p>
+
+          <div class="flex flex-wrap items-center gap-4 pt-2">
+            <button onclick="navigateTo('reportIncident')" class="btn-primary role-student-only px-7 py-3.5 text-sm font-bold shadow-xl shadow-teal-500/20">
+              <i data-lucide="file-plus" class="w-5 h-5"></i> Report an Incident
+            </button>
+            <button onclick="navigateTo('adminDashboard')" class="btn-primary role-admin-only hidden px-7 py-3.5 text-sm font-bold shadow-xl shadow-teal-500/20">
+              <i data-lucide="shield-alert" class="w-5 h-5"></i> Open Admin Console
+            </button>
+            <button onclick="openSosModal()" class="btn-danger px-7 py-3.5 text-sm font-extrabold uppercase shadow-xl shadow-coral-500/30">
+              <i data-lucide="alert-circle" class="w-5 h-5"></i> Emergency SOS
+            </button>
+          </div>
+        </div>
+
+        <div class="relative flex justify-center">
+          <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-[#1D302A] space-y-4 w-full max-w-md bg-[#0D1713] relative">
+            <div class="flex items-center justify-between border-b border-[#1D302A] pb-3">
+              <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-[#A3E635] animate-ping"></span>
+                <span class="text-xs font-bold text-[#A3E635] uppercase tracking-wider">Campus Safety Status</span>
+              </div>
+              <span class="text-[11px] text-[#94A39D]">Live 24/7 Grid</span>
+            </div>
+
+            <div class="w-full h-56 rounded-2xl bg-gradient-to-tr from-[#080B0A] via-[#0D1713] to-[#080B0A] border border-[#1D302A] flex items-center justify-center relative overflow-hidden">
+              <svg class="w-36 h-36 text-[#5EEAD4] opacity-90 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <path d="M9 12l2 2 4-4"/>
+              </svg>
+              <div class="absolute bottom-3 left-4 right-4 p-2.5 rounded-xl bg-black/60 backdrop-blur-md text-[11px] flex justify-between">
+                <span class="text-[#94A39D]">🛡️ Patrol Status</span>
+                <span class="font-bold text-[#A3E635]">ACTIVE (24/7)</span>
+              </div>
+            </div>
+
+            <div class="text-xs text-[#94A39D] space-y-1">
+              <div class="flex justify-between"><span>Illuminated Safe Routes</span><span class="font-bold text-[#5EEAD4]">100% Active</span></div>
+              <div class="flex justify-between"><span>Coverage</span><span class="font-bold text-[#2DD4BF]">All Universities</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Quick Statistics Bar -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 pt-4">
+        <div class="glass-card p-6 text-center space-y-2 border-l-4 border-l-[#5EEAD4]">
+          <div class="text-3xl sm:text-4xl font-extrabold text-[#5EEAD4]" id="statReportsResolved">142+</div>
+          <div class="text-xs font-semibold text-[#94A39D] uppercase tracking-wider">Reports Resolved</div>
+        </div>
+        <div class="glass-card p-6 text-center space-y-2 border-l-4 border-l-[#FBBF24]">
+          <div class="text-3xl sm:text-4xl font-extrabold text-[#FBBF24]" id="statActiveAlerts">3</div>
+          <div class="text-xs font-semibold text-[#94A39D] uppercase tracking-wider">Active Safety Alerts</div>
+        </div>
+        <div class="glass-card p-6 text-center space-y-2 border-l-4 border-l-[#A3E635]">
+          <div class="text-3xl sm:text-4xl font-extrabold text-[#A3E635]" id="statVerifiedReports">98%</div>
+          <div class="text-xs font-semibold text-[#94A39D] uppercase tracking-wider">Verified Reports</div>
+        </div>
+        <div class="glass-card p-6 text-center space-y-2 border-l-4 border-l-[#2DD4BF]">
+          <div class="text-3xl sm:text-4xl font-extrabold text-[#2DD4BF]" id="statCampusMembers">4,500+</div>
+          <div class="text-xs font-semibold text-[#94A39D] uppercase tracking-wider">Students Shielded</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- STUDENT DASHBOARD VIEW -->
+    <div id="view-studentDashboard" class="view-section space-y-8 hidden role-student-only">
+      
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div class="space-y-1">
+          <h2 class="text-3xl font-extrabold">Student Safety Dashboard</h2>
+          <p class="text-[#94A39D] text-xs sm:text-sm">Real-time status overview, campus alerts, and emergency controls.</p>
+        </div>
+
+        <button onclick="openCollegeOnboardingModal()" class="px-3.5 py-2 rounded-xl bg-[#0D1713] border border-[#5EEAD4]/40 text-[#5EEAD4] text-xs font-bold flex items-center gap-2 hover:bg-[#1D302A]">
+          <i data-lucide="map-pin" class="w-4 h-4 text-[#A3E635]"></i>
+          <span id="dashCollegeBadge">📍 Parul University (Main Campus, Vadodara)</span>
+          <i data-lucide="pencil" class="w-3 h-3 text-[#94A39D]"></i>
+        </button>
+      </div>
+
+      <!-- Student Details Card -->
+      <div class="grid sm:grid-cols-4 gap-4">
+        <div class="glass-card p-4 space-y-1 border-l-4 border-l-[#5EEAD4]">
+          <div class="text-[10px] uppercase font-bold text-[#94A39D]">Student Name</div>
+          <div class="text-sm font-bold text-white" id="dashStudentName">Priya Sharma</div>
+        </div>
+        <div class="glass-card p-4 space-y-1 border-l-4 border-l-[#2DD4BF]">
+          <div class="flex items-center justify-between">
+            <div class="text-[10px] uppercase font-bold text-[#94A39D]">University / College</div>
+            <span class="text-[9px] px-1.5 py-0.5 rounded bg-[#5EEAD4]/20 text-[#5EEAD4] font-bold" id="dashUniTypeBadge">PRIVATE</span>
+          </div>
+          <div class="text-xs font-bold text-[#5EEAD4]" id="dashUniversityName">Parul University</div>
+        </div>
+        <div class="glass-card p-4 space-y-1 border-l-4 border-l-[#A3E635]">
+          <div class="text-[10px] uppercase font-bold text-[#94A39D]">State & District</div>
+          <div class="text-xs font-bold text-[#A3E635]" id="dashStateDistrict">Gujarat (Vadodara)</div>
+        </div>
+        <div class="glass-card p-4 space-y-1 border-l-4 border-l-[#FBBF24]">
+          <div class="text-[10px] uppercase font-bold text-[#94A39D]">Course & Year</div>
+          <div class="text-xs font-bold text-[#FBBF24]" id="dashCourseYear">Engineering & Technology (3rd Year)</div>
+        </div>
+      </div>
+
+      <!-- Safety Status Card -->
+      <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-[#A3E635]/40 bg-[#0D1713] space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div class="space-y-1">
+            <div class="text-xs font-bold uppercase tracking-wider text-[#94A39D]">Campus Safety Status</div>
+            <div class="text-4xl font-black text-[#A3E635] flex items-center gap-3">
+              <span class="w-5 h-5 rounded-full bg-[#A3E635] animate-ping"></span> Campus SAFE
+            </div>
+          </div>
+          <div class="text-xs text-[#94A39D] space-y-1 text-right">
+            <div>All Main Pathways Illuminated & CCTV Monitored</div>
+            <div class="text-[#A3E635] font-semibold">Security Patrol active near Library & Hostel blocks</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions Grid -->
+      <div class="space-y-3">
+        <h3 class="text-lg font-bold text-[#5EEAD4]">Quick Actions</h3>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          <button onclick="navigateTo('reportIncident')" class="glass-card p-5 text-left space-y-2 group hover:border-[#5EEAD4]">
+            <div class="text-2xl">🚨</div>
+            <div class="font-bold text-sm text-[#5EEAD4] group-hover:text-white">Report Incident</div>
+            <div class="text-[11px] text-[#94A39D]">File anonymous or verified safety hazard</div>
+          </button>
+          
+          <button onclick="openSosModal()" class="glass-card p-5 text-left space-y-2 group hover:border-[#FB5B5B] border-[#FB5B5B]/30">
+            <div class="text-2xl">🆘</div>
+            <div class="font-bold text-sm text-[#FB5B5B]">Emergency SOS</div>
+            <div class="text-[11px] text-[#94A39D]">Trigger immediate panic alert</div>
+          </button>
+          
+          <button onclick="navigateTo('campusMap')" class="glass-card p-5 text-left space-y-2 group hover:border-[#2DD4BF]">
+            <div class="text-2xl">🗺️</div>
+            <div class="font-bold text-sm text-[#2DD4BF]">Safety Map</div>
+            <div class="text-[11px] text-[#94A39D]">View safe zones & lit route planner</div>
+          </button>
+
+          <button onclick="navigateTo('alerts')" class="glass-card p-5 text-left space-y-2 group hover:border-[#FBBF24]">
+            <div class="text-2xl">⚠️</div>
+            <div class="font-bold text-sm text-[#FBBF24]">View Alerts</div>
+            <div class="text-[11px] text-[#94A39D]">Active campus security notifications</div>
+          </button>
+
+          <button onclick="navigateTo('community')" class="glass-card p-5 text-left space-y-2 group hover:border-[#A3E635]">
+            <div class="text-2xl">👥</div>
+            <div class="font-bold text-sm text-[#A3E635]">Community Feed</div>
+            <div class="text-[11px] text-[#94A39D]">Peer verified safety feedback</div>
+          </button>
+
+          <button onclick="navigateTo('campusMap')" class="glass-card p-5 text-left space-y-2 group hover:border-[#5EEAD4]">
+            <div class="text-2xl">📍</div>
+            <div class="font-bold text-sm text-[#5EEAD4]">Safe Places</div>
+            <div class="text-[11px] text-[#94A39D]">24/7 Guard posts & help points</div>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ADMIN DASHBOARD VIEW -->
+    <div id="view-adminDashboard" class="view-section space-y-8 hidden role-admin-only">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 class="text-3xl font-extrabold text-[#A3E635]">Administrator Safety Console</h2>
+          <p class="text-[#94A39D] text-xs sm:text-sm">Chief warden monitoring, incident trends, case status & guard dispatch.</p>
+        </div>
+        <button onclick="exportAdminPdfReport()" class="btn-secondary text-xs px-4 py-2">
+          <i data-lucide="download" class="w-4 h-4"></i> Export PDF Report
+        </button>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div class="glass-card p-4 text-center space-y-1">
+          <div class="text-xs text-[#94A39D] font-bold uppercase">Total Reports</div>
+          <div class="text-2xl font-black text-[#5EEAD4]">142</div>
+        </div>
+        <div class="glass-card p-4 text-center space-y-1">
+          <div class="text-xs text-[#94A39D] font-bold uppercase">Pending</div>
+          <div class="text-2xl font-black text-[#FBBF24]">4</div>
+        </div>
+        <div class="glass-card p-4 text-center space-y-1">
+          <div class="text-xs text-[#94A39D] font-bold uppercase">Verified</div>
+          <div class="text-2xl font-black text-[#2DD4BF]">118</div>
+        </div>
+        <div class="glass-card p-4 text-center space-y-1">
+          <div class="text-xs text-[#94A39D] font-bold uppercase">Resolved</div>
+          <div class="text-2xl font-black text-[#A3E635]">120</div>
+        </div>
+        <div class="glass-card p-4 text-center space-y-1 col-span-2 md:col-span-1">
+          <div class="text-xs text-[#94A39D] font-bold uppercase">Avg Response</div>
+          <div class="text-2xl font-black text-[#FB5B5B]">&lt; 3 mins</div>
+        </div>
+      </div>
+
+      <div class="glass-panel p-6 rounded-3xl border border-[#1D302A] bg-[#0D1713] space-y-4">
+        <h4 class="font-bold text-lg text-white">Manage Reported Incidents</h4>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs text-left">
+            <thead class="bg-white/5 border-b border-[#1D302A] text-[#94A39D] uppercase text-[10px]">
+              <tr>
+                <th class="p-3">ID</th>
+                <th class="p-3">Category</th>
+                <th class="p-3">Location</th>
+                <th class="p-3">Priority</th>
+                <th class="p-3">Status</th>
+                <th class="p-3">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminTableBody" class="divide-y divide-white/5"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="glass-panel p-6 rounded-3xl space-y-3 border border-[#1D302A] bg-[#0D1713]">
+          <h4 class="font-bold text-sm text-[#5EEAD4] uppercase">Incident Categories</h4>
+          <canvas id="chartCategories" class="max-h-60"></canvas>
+        </div>
+        <div class="glass-panel p-6 rounded-3xl space-y-3 border border-[#1D302A] bg-[#0D1713]">
+          <h4 class="font-bold text-sm text-[#5EEAD4] uppercase">Reports Over Time</h4>
+          <canvas id="chartTimeOfDay" class="max-h-60"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECURITY CONSOLE VIEW -->
+    <div id="view-securityDashboard" class="view-section space-y-8 hidden role-security-only">
+      <div class="space-y-1">
+        <h2 class="text-3xl font-extrabold text-[#2DD4BF]">Campus Security Dispatch Console</h2>
+        <p class="text-[#94A39D] text-xs sm:text-sm">Real-time emergency alert queue and guard patrol dispatching.</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="md:col-span-2 space-y-4">
+          <h3 class="font-bold text-base flex items-center gap-2 text-white">
+            <i data-lucide="radio" class="w-5 h-5 text-[#FB5B5B]"></i> Active Dispatch Alerts
+          </h3>
+          <div id="securityAlertsList" class="space-y-3"></div>
+        </div>
+
+        <div class="glass-card p-5 space-y-4 border border-[#1D302A] bg-[#0D1713]">
+          <h3 class="font-bold text-xs text-[#5EEAD4] uppercase tracking-wider">Officers on Active Duty</h3>
+          <div class="space-y-3 text-xs">
+            <div class="p-3 rounded-xl bg-white/5 flex items-center justify-between border border-white/5">
+              <div>
+                <div class="font-bold text-white">Officer R. Sharma</div>
+                <div class="text-[11px] text-[#94A39D]">Main Gate Control Post</div>
+              </div>
+              <span class="badge-safe text-[10px]">Active</span>
+            </div>
+            <div class="p-3 rounded-xl bg-white/5 flex items-center justify-between border border-white/5">
+              <div>
+                <div class="font-bold text-white">Officer P. Singh</div>
+                <div class="text-[11px] text-[#94A39D]">Girls Hostel Patrol</div>
+              </div>
+              <span class="badge-safe text-[10px]">On Patrol</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- USER PROFILE VIEW -->
+    <div id="view-profile" class="view-section space-y-6 hidden max-w-3xl mx-auto">
+      <div class="glass-panel p-6 sm:p-8 rounded-3xl border border-[#1D302A] bg-[#0D1713] space-y-6">
+        <div class="flex items-center justify-between pb-4 border-b border-[#1D302A]">
+          <div class="flex items-center gap-4">
+            <div class="w-16 h-16 rounded-2xl bg-[#5EEAD4]/20 border border-[#5EEAD4]/40 flex items-center justify-center text-2xl font-black text-[#5EEAD4] shadow-xl shadow-teal-500/20">
+              <span id="profileInitials">PS</span>
+            </div>
+            <div>
+              <h2 class="text-2xl font-extrabold" id="profileFullName">Priya Sharma</h2>
+              <div class="text-xs text-[#5EEAD4] font-mono" id="profileEmail">student@university.edu</div>
+            </div>
+          </div>
+          <span class="badge-safe text-xs font-bold" id="profileRoleBadge">🎓 Student Account</span>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          <div class="glass-card p-4 text-center space-y-1">
+            <div class="text-xs text-[#94A39D]">College ID</div>
+            <div class="text-sm font-extrabold text-white font-mono" id="profileCollegeId">STU-2026-8891</div>
+          </div>
+          <div class="glass-card p-4 text-center space-y-1">
+            <div class="text-xs text-[#94A39D]">Trust Credibility Score</div>
+            <div class="text-sm font-extrabold text-[#A3E635]" id="profileTrustScore">95% (High Trust)</div>
+          </div>
+          <div class="glass-card p-4 text-center space-y-1 col-span-2 sm:col-span-1">
+            <div class="text-xs text-[#94A39D]">Location</div>
+            <div class="text-xs font-bold text-[#5EEAD4]" id="profileCollegeLocation">Parul University (Vadodara, Gujarat)</div>
+          </div>
+        </div>
+
+        <div class="flex justify-end pt-2 gap-3">
+          <button onclick="openCollegeOnboardingModal()" class="btn-secondary text-xs px-4 py-2">
+            <i data-lucide="building" class="w-4 h-4"></i> Update University Details
+          </button>
+          <button onclick="logoutUser()" class="btn-danger text-xs px-4 py-2">
+            <i data-lucide="log-out" class="w-4 h-4"></i> Logout Account
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- INCIDENT REPORTING FORM VIEW -->
+    <div id="view-reportIncident" class="view-section space-y-6 hidden role-student-only max-w-3xl mx-auto">
+      <div class="space-y-1 text-center">
+        <h2 class="text-3xl font-extrabold">Report a Safety Incident</h2>
+        <p class="text-[#94A39D] text-xs sm:text-sm">Submit safety concerns quickly. Identity protection is guaranteed.</p>
+      </div>
+
+      <form id="incidentForm" onsubmit="handleIncidentSubmit(event)" class="glass-panel p-6 sm:p-8 rounded-3xl space-y-5 border border-[#1D302A] bg-[#0D1713]">
+        <div class="p-4 rounded-2xl bg-[#080B0A] border border-[#1D302A] flex items-center justify-between">
+          <div class="space-y-0.5">
+            <div class="font-bold text-sm text-[#5EEAD4]">🔒 Submit Anonymously</div>
+            <div class="text-[11px] text-[#94A39D]">Hides your student ID and email from public community view.</div>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" id="reportAnonymous" class="sr-only peer" checked>
+            <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#5EEAD4]"></div>
+          </label>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-[#94A39D] uppercase mb-1">Incident Category</label>
+          <select id="reportCategory" class="w-full glass-input text-xs" required>
+            <option value="Harassment">🗣️ Harassment / Catcalling</option>
+            <option value="Stalking">👣 Stalking / Being Followed</option>
+            <option value="Unsafe Area">💡 Unsafe Area / Poor Lighting</option>
+            <option value="Suspicious Activity">👁️ Suspicious Activity</option>
+            <option value="Bullying">⚠️ Bullying / Intimidation</option>
+            <option value="Theft">🎒 Theft / Property Damage</option>
+            <option value="Physical Threat">🚨 Physical Threat / Assault</option>
+            <option value="Other">❓ Other Safety Issue</option>
+          </select>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-xs font-semibold text-[#94A39D] uppercase">Location on Campus</label>
+            <button type="button" onclick="detectGPSLocation()" class="text-[11px] px-2.5 py-1 rounded-lg bg-[#A3E635]/20 text-[#A3E635] border border-[#A3E635]/30 flex items-center gap-1 hover:bg-[#A3E635]/30">
+              <i data-lucide="locate" class="w-3 h-3"></i> Auto GPS
+            </button>
+          </div>
+          <input type="text" id="reportLocationName" class="w-full glass-input text-xs" placeholder="e.g. Parul Engineering Quad Alley, Library Gate 2" required>
+          <input type="hidden" id="reportLat" value="22.2887">
+          <input type="hidden" id="reportLng" value="73.3634">
+        </div>
+
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-[#94A39D] uppercase mb-1">Date & Time</label>
+            <input type="datetime-local" id="reportDateTime" class="w-full glass-input text-xs" required>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-[#94A39D] uppercase mb-1">Severity Level</label>
+            <select id="reportSeverity" class="w-full glass-input text-xs" required>
+              <option value="Low">🟢 Low (Minor Concern)</option>
+              <option value="Moderate" selected>🟡 Moderate (Needs Attention)</option>
+              <option value="High">🟠 High (Urgent Hazard)</option>
+              <option value="Critical">🔴 Critical (Immediate Threat)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-xs font-semibold text-[#94A39D] uppercase">Detailed Description</label>
+            <button type="button" onclick="toggleVoiceReporting()" id="voiceBtn" class="text-xs px-2.5 py-1 rounded-lg bg-[#5EEAD4]/20 text-[#5EEAD4] border border-[#5EEAD4]/30 flex items-center gap-1 hover:bg-[#5EEAD4]/30">
+              <i data-lucide="mic" class="w-3.5 h-3.5"></i> <span id="voiceBtnText">Voice-to-Text</span>
+            </button>
+          </div>
+          <textarea id="reportDescription" rows="4" class="w-full glass-input text-xs" placeholder="Provide description of what happened..." required></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-[#94A39D] uppercase mb-1">Upload Photo / Evidence (Optional)</label>
+          <input type="file" id="reportMedia" accept="image/*" class="glass-input w-full text-xs" onchange="previewMediaUpload(this)">
+          <div id="mediaPreviewContainer" class="mt-2 hidden">
+            <img id="mediaPreviewImg" class="h-28 rounded-xl object-cover border border-[#1D302A]">
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary w-full py-3.5 rounded-xl font-bold text-sm">
+          <i data-lucide="send" class="w-4 h-4"></i> Submit Incident Report
+        </button>
+
+      </form>
+    </div>
+
+    <!-- DYNAMIC UNIVERSITY SAFETY MAP VIEW -->
+    <div id="view-campusMap" class="view-section space-y-6 hidden">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 class="text-3xl font-extrabold" id="mapTitle">Interactive Campus Safety Map</h2>
+          <p class="text-[#94A39D] text-xs sm:text-sm" id="mapSubtitle">Real-time safe zones, help points, and report hotspots centered on your university.</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="recenterMapOnUniversity()" class="px-3 py-1.5 rounded-xl bg-[#5EEAD4] text-[#080B0A] text-xs font-bold flex items-center gap-1">
+            <i data-lucide="crosshair" class="w-3.5 h-3.5"></i> Center on My University
+          </button>
+          <button onclick="filterMapMarkers('all')" class="px-3 py-1.5 rounded-xl bg-[#0D1713] border border-[#1D302A] text-xs font-semibold text-white">All</button>
+          <button onclick="filterMapMarkers('safe')" class="px-3 py-1.5 rounded-xl bg-[#0D1713] border border-[#1D302A] text-[#A3E635] text-xs font-semibold">🟢 Safe Zones</button>
+          <button onclick="filterMapMarkers('incidents')" class="px-3 py-1.5 rounded-xl bg-[#0D1713] border border-[#1D302A] text-[#FB5B5B] text-xs font-semibold">🔴 Incidents</button>
+          <button onclick="filterMapMarkers('security')" class="px-3 py-1.5 rounded-xl bg-[#0D1713] border border-[#1D302A] text-[#2DD4BF] text-xs font-semibold">🔵 Security</button>
+          <button onclick="filterMapMarkers('emergency')" class="px-3 py-1.5 rounded-xl bg-[#0D1713] border border-[#1D302A] text-[#FBBF24] text-xs font-semibold">🆘 Help Points</button>
+        </div>
+      </div>
+
+      <div class="glass-panel p-2 rounded-3xl overflow-hidden border border-[#1D302A] bg-[#0D1713]">
+        <div id="campusMap" class="w-full h-[520px] rounded-2xl"></div>
+      </div>
+    </div>
+
+    <!-- ALERTS VIEW -->
+    <div id="view-alerts" class="view-section space-y-6 hidden max-w-4xl mx-auto">
+      <div class="space-y-1">
+        <h2 class="text-3xl font-extrabold">Campus Safety Alerts</h2>
+        <p class="text-[#94A39D] text-xs sm:text-sm">Official notifications from campus security control.</p>
+      </div>
+
+      <div class="space-y-4" id="alertsListContainer">
+        <div class="glass-panel p-5 rounded-2xl border-l-4 border-l-[#FB5B5B] bg-[#0D1713] space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="badge-emergency font-bold">EMERGENCY ALERT</span>
+            <span class="text-xs text-[#94A39D]">10 mins ago</span>
+          </div>
+          <h4 class="font-bold text-base text-[#FB5B5B]">Safety Alert: Suspicious activity reported near Library Block</h4>
+          <p class="text-xs text-[#F1F5F3]">Security officers are patrolling the perimeter. Students are advised to use the central illuminated pathway.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMMUNITY REPORTS VIEW -->
+    <div id="view-community" class="view-section space-y-6 hidden">
+      <div class="space-y-1">
+        <h2 class="text-3xl font-extrabold">Community Safety Feed</h2>
+        <p class="text-[#94A39D] text-xs sm:text-sm">Peer-verified reports with privacy protection (No personal info displayed).</p>
+      </div>
+
+      <div id="communityFeedContainer" class="space-y-4"></div>
+    </div>
+
+  </main>
+
+  <!-- CLEAN UNIVERSITY DETAILS MODAL -->
+  <div id="collegeOnboardingModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 hidden overflow-y-auto">
+    <div class="glass-panel max-w-xl w-full p-6 sm:p-8 rounded-3xl space-y-5 border border-[#5EEAD4]/40 bg-[#0D1713] relative my-8 shadow-2xl">
+      <button onclick="closeCollegeOnboardingModal()" class="absolute top-4 right-4 text-[#94A39D] hover:text-white text-xl font-bold">&times;</button>
+      
+      <div class="space-y-1 text-center">
+        <div class="w-14 h-14 rounded-2xl bg-[#5EEAD4]/20 border border-[#5EEAD4]/40 text-[#5EEAD4] flex items-center justify-center mx-auto text-2xl font-bold mb-2 shadow-lg shadow-teal-500/20">
+          🏛️
+        </div>
+        <h3 class="text-2xl font-extrabold text-white">University Details</h3>
+        <p class="text-xs text-[#94A39D]">Enter your university and location details to customize your campus safety map.</p>
+      </div>
+
+      <form onsubmit="handleCollegeOnboardingSubmit(event)" class="space-y-4 pt-2">
+        
+        <!-- Institution Type Selector -->
+        <div>
+          <label class="block text-xs font-semibold text-[#94A39D] uppercase mb-1">University Category / Type</label>
+          <select id="onboardUniType" class="w-full glass-input text-xs" required>
+            <option value="Private / Deemed University" selected>🏢 Private / Deemed University (e.g. Parul University, BITS Pilani, VIT, SRM)</option>
+            <option value="Central / Govt Institute">🏛️ Central / Govt University / Institute (e.g. IIT, NIT, DU, JNU, BHU, AIIMS)</option>
+            <option value="State Govt University">🏫 State Government University (e.g. Anna Univ, VTU, Mumbai Univ, Pune Univ)</option>
+            <option value="Autonomous Private College">🎓 Autonomous / Private College / Institute</option>
+          </select>
+        </div>
+
+        <!-- University Name Input -->
+        <div>
+          <label class="block text-xs font-semibold text-[#94A39D] uppercase mb-1">University / College Name</label>
+          <input type="text" id="onboardCollegeName" class="w-full glass-input text-xs" placeholder="e.g. Parul University / BITS Pilani / VIT Vellore / SRM University" required>
+        </div>
+
+        <!-- All 28 States & 8 Union Territories Dropdown -->
+        <div class="grid sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-[#94A39D] uppercase mb-1">State / Union Territory</label>
+            <select id="onboardState" class="w-full glass-input text-xs" required>
+              <optgroup label="Indian States">
+                <option value="Gujarat" selected>Gujarat</option>
+                <option value="Andhra Pradesh">Andhra Pradesh</option>
+                <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                <option value="Assam">Assam</option>
+                <option value="Bihar">Bihar</option>
+                <option value="Chhattisgarh">Chhattisgarh</option>
+                <option value="Goa">Goa</option>
+                <option value="Haryana">Haryana</option>
+                <option value="Himachal Pradesh">Himachal Pradesh</option>
+                <option value="Jharkhand">Jharkhand</option>
+                <option value="Karnataka">Karnataka</option>
+                <option value="Kerala">Kerala</option>
+                <option value="Madhya Pradesh">Madhya Pradesh</option>
+                <option value="Maharashtra">Maharashtra</option>
+                <option value="Manipur">Manipur</option>
+                <option value="Meghalaya">Meghalaya</option>
+                <option value="Mizoram">Mizoram</option>
+                <option value="Nagaland">Nagaland</option>
+                <option value="Odisha">Odisha</option>
+                <option value="Punjab">Punjab</option>
+                <option value="Rajasthan">Rajasthan</option>
+                <option value="Sikkim">Sikkim</option>
+                <option value="Tamil Nadu">Tamil Nadu</option>
+                <option value="Telangana">Telangana</option>
+                <option value="Tripura">Tripura</option>
+                <option value="Uttar Pradesh">Uttar Pradesh</option>
+                <option value="Uttarakhand">Uttarakhand</option>
+                <option value="West Bengal">West Bengal</option>
+              </optgroup>
+              <optgroup label="Union Territories">
+                <option value="Delhi (NCT)">Delhi (NCT)</option>
+                <option value="Andaman & Nicobar">Andaman & Nicobar</option>
+                <option value="Chandigarh">Chandigarh</option>
+                <option value="Dadra & Nagar Haveli & Daman & Diu">Dadra & Nagar Haveli & Daman & Diu</option>
+                <option value="Jammu & Kashmir">Jammu & Kashmir</option>
+                <option value="Ladakh">Ladakh</option>
+                <option value="Lakshadweep">Lakshadweep</option>
+                <option value="Puducherry">Puducherry</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-[#94A39D] uppercase mb-1">District / City</label>
+            <input type="text" id="onboardDistrict" class="w-full glass-input text-xs" placeholder="e.g. Vadodara / Ahmedabad / Surat / Rajkot" required>
+          </div>
+        </div>
+
+        <div class="grid sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-[#94A39D] uppercase mb-1">Campus / Branch Name</label>
+            <input type="text" id="onboardCampusBranch" class="w-full glass-input text-xs" placeholder="e.g. Main Campus (Limda, Waghodia)" required>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-[#94A39D] uppercase mb-1">Stream / Degree Program</label>
+            <select id="onboardCourseStream" class="w-full glass-input text-xs" required>
+              <option value="Engineering & Technology">💻 Engineering & Technology (B.Tech/BE/M.Tech)</option>
+              <option value="Medicine & Healthcare">⚕️ Medicine & Healthcare (MBBS/BDS/Nursing)</option>
+              <option value="Arts, Humanities & Social Sciences">📚 Arts & Humanities (BA/MA/Ph.D)</option>
+              <option value="Pure Sciences">🔬 Pure Sciences (B.Sc/M.Sc)</option>
+              <option value="Commerce & Management">📊 Commerce & Management (B.Com/BBA/MBA)</option>
+              <option value="Law & Judiciary">⚖️ Law (BA LLB/LLM)</option>
+              <option value="Pharmacy">💊 Pharmacy (B.Pharm/M.Pharm)</option>
+              <option value="Architecture & Design">📐 Architecture & Design (B.Arch/B.Des)</option>
+              <option value="Polytechnic & Diploma">🔧 Polytechnic & Diploma</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-[#94A39D] uppercase mb-1">Academic Year</label>
+            <select id="onboardCourseYear" class="w-full glass-input text-xs" required>
+              <option value="1st Year">1st Year (Freshman)</option>
+              <option value="2nd Year">2nd Year (Sophomore)</option>
+              <option value="3rd Year" selected>3rd Year (Junior)</option>
+              <option value="4th Year">4th Year (Senior)</option>
+              <option value="Post-Graduate / Ph.D">Post-Graduate / Ph.D</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-[#94A39D] uppercase mb-1">Hostel Block / Emergency Contact</label>
+            <input type="text" id="onboardHostelContact" class="w-full glass-input text-xs" placeholder="e.g. Tagore Hostel Block B / 9876543210" required>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary w-full py-3.5 rounded-xl text-xs font-bold justify-center shadow-lg shadow-teal-500/20">
+          Save University Details
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- EMERGENCY SOS CONFIRMATION MODAL -->
+  <div id="sosModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 hidden">
+    <div class="glass-panel max-w-md w-full p-6 sm:p-8 rounded-3xl space-y-6 border border-[#FB5B5B]/50 text-center bg-[#0D1713] relative">
+      <button onclick="closeSosModal()" class="absolute top-4 right-4 text-[#94A39D] hover:text-white text-xl font-bold">&times;</button>
+      
+      <div class="w-16 h-16 rounded-full bg-[#FB5B5B] flex items-center justify-center mx-auto text-white shadow-xl shadow-coral-500/60 animate-bounce">
+        <i data-lucide="alert-triangle" class="w-8 h-8"></i>
+      </div>
+
+      <div class="space-y-2">
+        <h3 class="text-2xl font-extrabold text-[#FB5B5B]">Emergency SOS Confirmation</h3>
+        <p class="text-xs text-[#94A39D]">Are you in immediate danger? Select an emergency action below:</p>
+      </div>
+
+      <div class="space-y-3">
+        <button onclick="executeSosAction('call_security')" class="btn-danger w-full py-3 text-xs font-bold justify-center">
+          📞 Call Campus Security (1800-11-2233)
+        </button>
+        <button onclick="executeSosAction('share_gps')" class="btn-primary w-full py-3 text-xs font-bold justify-center">
+          📍 Share Live GPS Location
+        </button>
+        <button onclick="executeSosAction('call_112')" class="btn-secondary w-full py-3 text-xs font-bold justify-center text-[#FB5B5B]">
+          🚨 Contact Emergency Services (112 / 1091)
+        </button>
+        <button onclick="executeSosAction('notify_contacts')" class="btn-secondary w-full py-3 text-xs font-bold justify-center">
+          📲 Notify Trusted Contacts
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- REPORT CONFIRMATION MODAL -->
+  <div id="reportConfirmModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 hidden">
+    <div class="glass-panel max-w-md w-full p-6 sm:p-8 rounded-3xl space-y-5 border border-[#A3E635]/50 bg-[#0D1713] text-center">
+      <div class="w-16 h-16 rounded-full bg-[#A3E635] flex items-center justify-center mx-auto text-[#080B0A] shadow-xl shadow-lime-500/40">
+        <i data-lucide="check-circle-2" class="w-8 h-8"></i>
+      </div>
+
+      <div class="space-y-2">
+        <h3 class="text-2xl font-extrabold text-[#A3E635]">Report Submitted Successfully</h3>
+        <p class="text-xs text-[#94A39D]">Your report has been received and queued for chief security review.</p>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-[#080B0A] border border-[#1D302A] space-y-1">
+        <div class="text-[11px] text-[#94A39D] uppercase font-bold">Unique Report Reference ID</div>
+        <div class="text-xl font-mono font-black text-[#5EEAD4]" id="confirmReportId">#CS-2026-98412</div>
+      </div>
+
+      <button onclick="closeReportConfirmModal()" class="btn-primary w-full py-3 text-xs font-bold justify-center">
+        Return to Safety Dashboard
+      </button>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="glass-panel border-t border-[#1D302A] bg-[#0D1713] mt-12 py-8 px-6 text-xs text-[#94A39D]">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="space-y-1 text-center md:text-left">
+        <div class="font-extrabold text-base text-[#5EEAD4]">CampusShield 🇮🇳</div>
+        <div>"Building safer campuses across India."</div>
+      </div>
+      <div class="flex flex-wrap items-center gap-6">
+        <a href="#" onclick="navigateTo('reportIncident'); return false;" class="hover:underline hover:text-[#5EEAD4]">Report Issue</a>
+        <a href="#" onclick="navigateTo('campusMap'); return false;" class="hover:underline hover:text-[#5EEAD4]">Safety Map</a>
+        <a href="#" onclick="navigateTo('alerts'); return false;" class="hover:underline hover:text-[#5EEAD4]">Alerts</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
